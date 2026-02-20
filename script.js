@@ -1,13 +1,19 @@
+
 const avatarPlayer = document.getElementById("avatarAnimation");
 const avatarNameDisplay = document.getElementById("avatarName");
 const chatBox = document.getElementById("chatBox");
 
-const selectedAvatar = localStorage.getItem("avatar") || "sakha";
+const selectedAvatar = localStorage.getItem("avatar") || "sakhi";
 
-avatarNameDisplay.innerText =
-  selectedAvatar === "sakha" ? "Sakha" : "Sakhi";
+if (avatarNameDisplay) {
+  avatarNameDisplay.innerText =
+    selectedAvatar === "sakha" ? "Sakha" : "Sakhi";
+}
 
-// Cartoon Online Animations
+// ======================
+// ONLINE CARTOON AVATARS
+// ======================
+
 const animations = {
   sakha: {
     idle: "https://assets9.lottiefiles.com/packages/lf20_8wREpI.json",
@@ -27,24 +33,65 @@ function loadTalking() {
   avatarPlayer.setAttribute("src", animations[selectedAvatar].talk);
 }
 
-loadIdle();
+if (avatarPlayer) loadIdle();
 
-// TIMER
-let timeLeft = 600;
-const timerDisplay = document.getElementById("timer");
+// ======================
+// GEMINI API INTEGRATION
+// ======================
 
-setInterval(() => {
-  if (timeLeft <= 0) return;
-  timeLeft--;
-  let m = Math.floor(timeLeft / 60);
-  let s = timeLeft % 60;
-  timerDisplay.innerText = `${m}:${s < 10 ? "0" : ""}${s}`;
-}, 1000);
+const API_KEY = "PASTE_YOUR_GEMINI_API_KEY_HERE"; 
+// ⚠ Paste your Gemini key here
 
-// MESSAGE LIMIT
+async function generateResponse(prompt) {
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: `
+You are ${selectedAvatar}, an ethical AI study companion.
+Rules:
+- Do NOT give medical, legal, or financial advice.
+- Be supportive and student-friendly.
+- Keep answers concise and helpful.
+- If student feels discouraged, give empathy + small action step.
+
+User: ${prompt}
+`
+                }
+              ]
+            }
+          ]
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    return data.candidates?.[0]?.content?.parts?.[0]?.text ||
+           "Let’s keep learning together!";
+
+  } catch (error) {
+    return "I’m having trouble connecting right now. Please try again.";
+  }
+}
+
+// ======================
+// CHAT FUNCTION
+// ======================
+
 let messageCount = 0;
+let timeLeft = 600;
 
-function sendMessage() {
+async function sendMessage() {
 
   if (messageCount >= 20) {
     addMessage("Daily message limit reached.", "ai");
@@ -62,9 +109,10 @@ function sendMessage() {
 
   messageCount++;
 
-  let response = generateResponse(text);
-  addMessage(response, "ai");
-  speak(response);
+  loadTalking();
+  const reply = await generateResponse(text);
+  addMessage(reply, "ai");
+  speak(reply);
 }
 
 function addMessage(text, type) {
@@ -75,13 +123,16 @@ function addMessage(text, type) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Safety Override
+// ======================
+// SAFETY OVERRIDE
+// ======================
+
 function checkSafety(text) {
   const risky = ["suicide", "kill myself", "self harm", "die"];
   for (let word of risky) {
     if (text.toLowerCase().includes(word)) {
       addMessage(
-        "I'm really sorry you're feeling this way. If you're in India, call KIRAN 1800-599-0019. Are you safe right now?",
+        "I’m really sorry you're feeling this way. If you’re in India, please call KIRAN: 1800-599-0019. Are you safe right now?",
         "ai"
       );
       return true;
@@ -90,31 +141,31 @@ function checkSafety(text) {
   return false;
 }
 
-// Motivation Logic
-function generateResponse(text) {
-  if (text.toLowerCase().includes("fail") ||
-      text.toLowerCase().includes("tired") ||
-      text.toLowerCase().includes("give up")) {
+// ======================
+// SPEECH SYSTEM
+// ======================
 
-    const examples = [
-      "Thomas Edison failed 1000 times before success.",
-      "A.P.J. Abdul Kalam faced many setbacks before becoming President.",
-      "J.K. Rowling was rejected before publishing Harry Potter."
-    ];
-
-    return `I understand it feels tough.\n\nRemember: ${examples[Math.floor(Math.random()*examples.length)]}\n\nTry studying for 15 focused minutes. Small steps matter.`;
-  }
-
-  return "Let's break this topic into small steps. What part do you want help with?";
-}
-
-// Speech
 function speak(text) {
-  loadTalking();
   const speech = new SpeechSynthesisUtterance(text);
   speech.lang = "en-US";
   speech.onend = loadIdle;
   window.speechSynthesis.speak(speech);
+}
+
+// ======================
+// TIMER
+// ======================
+
+const timerDisplay = document.getElementById("timer");
+
+if (timerDisplay) {
+  setInterval(() => {
+    if (timeLeft <= 0) return;
+    timeLeft--;
+    let m = Math.floor(timeLeft / 60);
+    let s = timeLeft % 60;
+    timerDisplay.innerText = `${m}:${s < 10 ? "0" : ""}${s}`;
+  }, 1000);
 }
 
 function toggleMode() {
