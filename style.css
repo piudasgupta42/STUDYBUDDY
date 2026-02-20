@@ -1,0 +1,58 @@
+body.light {
+  background: #f2f7ff;
+  color: #222;
+}
+
+body.dark {
+  background: #0d1b2a;
+  color: #e0e1dd;
+}
+
+.container, .chat-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+}
+
+.avatar-card {
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.chat-box {
+  height: 350px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.message {
+  margin: 8px 0;
+}
+
+.user {
+  text-align: right;
+}
+
+.ai {
+  text-align: left;
+}
+
+input {
+  width: 75%;
+  padding: 8px;
+}
+
+button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+footer {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+}
