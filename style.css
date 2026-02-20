@@ -1,6 +1,7 @@
 body.light {
   background: #f2f7ff;
   color: #222;
+  font-family: Arial, sans-serif;
 }
 
 body.dark {
@@ -12,47 +13,53 @@ body.dark {
   max-width: 600px;
   margin: auto;
   padding: 20px;
+  text-align: center;
+}
+
+.avatars {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
 }
 
 .avatar-card {
   cursor: pointer;
-  padding: 10px;
-  border-radius: 12px;
-  text-align: center;
 }
 
 .chat-box {
-  height: 350px;
+  height: 300px;
   overflow-y: auto;
   border: 1px solid #ccc;
   padding: 10px;
-  margin-bottom: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
 }
 
-.message {
-  margin: 8px 0;
-}
-
-.user {
+.message.user {
   text-align: right;
+  margin: 5px;
 }
 
-.ai {
+.message.ai {
   text-align: left;
+  margin: 5px;
 }
 
 input {
-  width: 75%;
+  width: 70%;
   padding: 8px;
 }
 
 button {
-  padding: 8px 12px;
+  padding: 8px;
   cursor: pointer;
 }
 
+.avatar-area {
+  margin: 10px 0;
+}
+
 footer {
-  text-align: center;
-  margin-top: 15px;
+  margin-top: 20px;
   font-size: 14px;
 }
