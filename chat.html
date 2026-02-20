@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat – Sakha & Sakhi</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="light">
+
+<div class="chat-container">
+  <header>
+    <h2 id="avatarName"></h2>
+    <button onclick="toggleMode()">🌙</button>
+    <div id="timer">10:00</div>
+  </header>
+
+  <div id="chatBox" class="chat-box"></div>
+
+  <div class="input-area">
+    <input type="text" id="userInput" placeholder="Type your message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<footer>
+  Designed by Piu Dasgupta © 2026
+</footer>
+
+<script src="safety.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
