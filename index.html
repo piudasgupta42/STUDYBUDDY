@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sakha & Sakhi – Ethical AI Study Companion</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+</head>
+<body class="light">
+
+  <div class="container">
+    <h1>Sakha & Sakhi</h1>
+    <p class="tagline">Your Ethical AI Study Companion</p>
+
+    <div class="avatars">
+      <div class="avatar-card" onclick="selectAvatar('sakha')">
+        <lottie-player src="assets/sakha.json" background="transparent" speed="1" loop autoplay></lottie-player>
+        <h3>Sakha</h3>
+      </div>
+
+      <div class="avatar-card" onclick="selectAvatar('sakhi')">
+        <lottie-player src="assets/sakhi.json" background="transparent" speed="1" loop autoplay></lottie-player>
+        <h3>Sakhi</h3>
+      </div>
+    </div>
+
+    <p class="disclaimer">
+      These are fictional AI characters created for educational purposes only.
+      Not medical, psychological, financial, or legal advice.
+    </p>
+  </div>
+
+<script>
+function selectAvatar(name){
+  localStorage.setItem("avatar", name);
+  window.location.href = "chat.html";
+}
+</script>
+
+</body>
+</html>
