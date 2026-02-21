@@ -1,7 +1,11 @@
+// ==============================
+// Sakha & Sakhi – Full Version
+// ==============================
 
 const avatarPlayer = document.getElementById("avatarAnimation");
 const avatarNameDisplay = document.getElementById("avatarName");
 const chatBox = document.getElementById("chatBox");
+const timerDisplay = document.getElementById("timer");
 
 const selectedAvatar = localStorage.getItem("avatar") || "sakhi";
 
@@ -10,9 +14,9 @@ if (avatarNameDisplay) {
     selectedAvatar === "sakha" ? "Sakha" : "Sakhi";
 }
 
-// ======================
+// ==============================
 // ONLINE CARTOON AVATARS
-// ======================
+// ==============================
 
 const animations = {
   sakha: {
@@ -35,12 +39,12 @@ function loadTalking() {
 
 if (avatarPlayer) loadIdle();
 
-// ======================
-// GEMINI API INTEGRATION
-// ======================
+// ==============================
+// GEMINI API
+// ==============================
 
-const API_KEY = "PASTE_YOUR_GEMINI_API_KEY_HERE"; 
-// ⚠ Paste your Gemini key here
+// 🔴 PASTE YOUR NEW API KEY BELOW
+const API_KEY = "AIzaSyDlSchaIaPTtiWZxTbC46NWPllH0_svA0I";
 
 async function generateResponse(prompt) {
   try {
@@ -48,9 +52,7 @@ async function generateResponse(prompt) {
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [
             {
@@ -58,11 +60,12 @@ async function generateResponse(prompt) {
                 {
                   text: `
 You are ${selectedAvatar}, an ethical AI study companion.
+
 Rules:
-- Do NOT give medical, legal, or financial advice.
-- Be supportive and student-friendly.
-- Keep answers concise and helpful.
-- If student feels discouraged, give empathy + small action step.
+- No medical, legal, financial advice.
+- Supportive and growth-focused.
+- If student feels discouraged: empathy + perseverance example + small action step.
+- If crisis detected: encourage real-world help.
 
 User: ${prompt}
 `
@@ -77,19 +80,18 @@ User: ${prompt}
     const data = await response.json();
 
     return data.candidates?.[0]?.content?.parts?.[0]?.text ||
-           "Let’s keep learning together!";
-
+           "Let’s keep learning together.";
   } catch (error) {
-    return "I’m having trouble connecting right now. Please try again.";
+    return "Connection issue. Please try again.";
   }
 }
 
-// ======================
-// CHAT FUNCTION
-// ======================
+// ==============================
+// MESSAGE + LIMIT SYSTEM
+// ==============================
 
 let messageCount = 0;
-let timeLeft = 600;
+let timeLeft = 600; // 10 minutes
 
 async function sendMessage() {
 
@@ -123,16 +125,16 @@ function addMessage(text, type) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// ======================
-// SAFETY OVERRIDE
-// ======================
+// ==============================
+// SAFETY SYSTEM
+// ==============================
 
 function checkSafety(text) {
   const risky = ["suicide", "kill myself", "self harm", "die"];
   for (let word of risky) {
     if (text.toLowerCase().includes(word)) {
       addMessage(
-        "I’m really sorry you're feeling this way. If you’re in India, please call KIRAN: 1800-599-0019. Are you safe right now?",
+        "I’m really sorry you're feeling this way. If you're in India, please call KIRAN 1800-599-0019. Are you safe right now?",
         "ai"
       );
       return true;
@@ -141,9 +143,9 @@ function checkSafety(text) {
   return false;
 }
 
-// ======================
-// SPEECH SYSTEM
-// ======================
+// ==============================
+// VOICE
+// ==============================
 
 function speak(text) {
   const speech = new SpeechSynthesisUtterance(text);
@@ -152,11 +154,9 @@ function speak(text) {
   window.speechSynthesis.speak(speech);
 }
 
-// ======================
+// ==============================
 // TIMER
-// ======================
-
-const timerDisplay = document.getElementById("timer");
+// ==============================
 
 if (timerDisplay) {
   setInterval(() => {
@@ -167,6 +167,10 @@ if (timerDisplay) {
     timerDisplay.innerText = `${m}:${s < 10 ? "0" : ""}${s}`;
   }, 1000);
 }
+
+// ==============================
+// DARK MODE
+// ==============================
 
 function toggleMode() {
   document.body.classList.toggle("dark");
