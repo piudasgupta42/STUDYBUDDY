@@ -1,26 +1,23 @@
-// ==========================================
-// Sakha & Sakhi – Ethical AI Study Companion
-// Full Working Frontend Script
-// ==========================================
+// ==============================
+// Sakha & Sakhi – Final Working Version
+// ==============================
 
-// Elements
 const avatarPlayer = document.getElementById("avatarAnimation");
 const avatarNameDisplay = document.getElementById("avatarName");
 const chatBox = document.getElementById("chatBox");
-const timerDisplay = document.getElementById("timer");
-const inputField = document.getElementById("messageInput");
+const userInput = document.getElementById("userInput");
+const sendBtn = document.getElementById("sendBtn");
 
 const selectedAvatar = localStorage.getItem("avatar") || "sakhi";
 
-// Display avatar name
 if (avatarNameDisplay) {
   avatarNameDisplay.innerText =
     selectedAvatar === "sakha" ? "Sakha" : "Sakhi";
 }
 
-// ==========================================
-// ONLINE LOTTIE AVATARS
-// ==========================================
+// ==============================
+// ONLINE CARTOON AVATARS
+// ==============================
 
 const animations = {
   sakha: {
@@ -34,32 +31,22 @@ const animations = {
 };
 
 function loadIdle() {
-  if (avatarPlayer)
+  if (avatarPlayer) {
     avatarPlayer.setAttribute("src", animations[selectedAvatar].idle);
+  }
 }
 
 function loadTalking() {
-  if (avatarPlayer)
+  if (avatarPlayer) {
     avatarPlayer.setAttribute("src", animations[selectedAvatar].talk);
+  }
 }
 
-if (avatarPlayer) loadIdle();
+loadIdle();
 
-// ==========================================
-// CHAT FUNCTIONS
-// ==========================================
-
-function addMessage(message, sender) {
-  const messageDiv = document.createElement("div");
-  messageDiv.className = sender === "user" ? "user-message" : "bot-message";
-  messageDiv.innerText = message;
-  chatBox.appendChild(messageDiv);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-// ==========================================
-// GEMINI BACKEND CALL (RENDER)
-// ==========================================
+// ==============================
+// GEMINI BACKEND CALL
+// ==============================
 
 async function generateResponse(prompt) {
   try {
@@ -78,6 +65,7 @@ async function generateResponse(prompt) {
     );
 
     const data = await response.json();
+
     return data.reply || "Let’s keep learning together.";
   } catch (error) {
     console.error("Error:", error);
@@ -85,74 +73,36 @@ async function generateResponse(prompt) {
   }
 }
 
-// ==========================================
-// SEND MESSAGE
-// ==========================================
+// ==============================
+// SEND BUTTON
+// ==============================
 
-async function sendMessage() {
-  const message = inputField.value.trim();
-  if (!message) return;
+if (sendBtn) {
+  sendBtn.addEventListener("click", async () => {
+    const prompt = userInput.value.trim();
+    if (!prompt) return;
 
-  addMessage(message, "user");
-  inputField.value = "";
+    // Show user message
+    const userMessage = document.createElement("div");
+    userMessage.className = "user-message";
+    userMessage.innerText = prompt;
+    chatBox.appendChild(userMessage);
 
-  loadTalking();
+    userInput.value = "";
+    chatBox.scrollTop = chatBox.scrollHeight;
 
-  const aiReply = await generateResponse(message);
+    loadTalking();
 
-  loadIdle();
-  addMessage(aiReply, "bot");
-  speak(aiReply);
-}
+    // Get AI reply
+    const reply = await generateResponse(prompt);
 
-// ==========================================
-// TEXT TO SPEECH
-// ==========================================
+    loadIdle();
 
-function speak(text) {
-  if ("speechSynthesis" in window) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1;
-    utterance.pitch = 1;
-    speechSynthesis.speak(utterance);
-  }
-}
+    const aiMessage = document.createElement("div");
+    aiMessage.className = "ai-message";
+    aiMessage.innerText = reply;
+    chatBox.appendChild(aiMessage);
 
-// ==========================================
-// TIMER (10 Minutes)
-// ==========================================
-
-let timeLeft = 600; // 10 minutes
-
-function updateTimer() {
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
-
-  if (timerDisplay) {
-    timerDisplay.innerText =
-      `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-  }
-
-  if (timeLeft > 0) {
-    timeLeft--;
-  } else {
-    alert("Session time is over for today.");
-    inputField.disabled = true;
-  }
-}
-
-if (timerDisplay) {
-  setInterval(updateTimer, 1000);
-}
-
-// ==========================================
-// ENTER KEY SUPPORT
-// ==========================================
-
-if (inputField) {
-  inputField.addEventListener("keypress", function (e) {
-    if (e.key === "Enter") {
-      sendMessage();
-    }
+    chatBox.scrollTop = chatBox.scrollHeight;
   });
 }
