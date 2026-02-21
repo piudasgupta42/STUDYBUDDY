@@ -1,54 +1,45 @@
-// ==============================
-// Sakha & Sakhi – Final Working Version
-// ==============================
-
-const avatarPlayer = document.getElementById("avatarAnimation");
-const avatarNameDisplay = document.getElementById("avatarName");
 const chatBox = document.getElementById("chatBox");
-const userInput = document.getElementById("userInput");
-const sendBtn = document.getElementById("sendBtn");
+const input = document.getElementById("userInput");
+const avatarImg = document.getElementById("avatarImg");
+const avatarName = document.getElementById("avatarName");
 
 const selectedAvatar = localStorage.getItem("avatar") || "sakhi";
 
-if (avatarNameDisplay) {
-  avatarNameDisplay.innerText =
-    selectedAvatar === "sakha" ? "Sakha" : "Sakhi";
-}
-
-// ==============================
-// ONLINE CARTOON AVATARS
-// ==============================
-
-const animations = {
+const avatars = {
   sakha: {
-    idle: "https://assets9.lottiefiles.com/packages/lf20_8wREpI.json",
-    talk: "https://assets10.lottiefiles.com/packages/lf20_touohxv0.json"
+    name: "Sakha",
+    img: "https://i.imgur.com/3ZQ3Z9v.png"
   },
   sakhi: {
-    idle: "https://assets3.lottiefiles.com/packages/lf20_khzniaya.json",
-    talk: "https://assets10.lottiefiles.com/packages/lf20_touohxv0.json"
+    name: "Sakhi",
+    img: "https://i.imgur.com/8Km9tLL.png"
   }
 };
 
-function loadIdle() {
-  if (avatarPlayer) {
-    avatarPlayer.setAttribute("src", animations[selectedAvatar].idle);
-  }
+avatarImg.src = avatars[selectedAvatar].img;
+avatarName.innerText = avatars[selectedAvatar].name;
+
+function addMessage(text, type) {
+  const msg = document.createElement("div");
+  msg.classList.add("message", type);
+  msg.innerText = text;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-function loadTalking() {
-  if (avatarPlayer) {
-    avatarPlayer.setAttribute("src", animations[selectedAvatar].talk);
-  }
-}
+async function sendMessage() {
+  const text = input.value.trim();
+  if (!text) return;
 
-loadIdle();
+  addMessage(text, "user");
+  input.value = "";
 
-// ==============================
-// GEMINI BACKEND CALL
-// ==============================
+  const typing = document.createElement("div");
+  typing.classList.add("message", "bot");
+  typing.innerText = "Typing...";
+  chatBox.appendChild(typing);
+  chatBox.scrollTop = chatBox.scrollHeight;
 
-async function generateResponse(prompt) {
   try {
     const response = await fetch(
       "https://sakha-backend.onrender.com/api/chat",
@@ -57,52 +48,17 @@ async function generateResponse(prompt) {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          message: prompt,
-          avatar: selectedAvatar
-        })
+        body: JSON.stringify({ message: text })
       }
     );
 
     const data = await response.json();
 
-    return data.reply || "Let’s keep learning together.";
+    chatBox.removeChild(typing);
+    addMessage(data.reply, "bot");
+
   } catch (error) {
-    console.error("Error:", error);
-    return "Connection issue. Please try again.";
+    chatBox.removeChild(typing);
+    addMessage("Server not responding.", "bot");
   }
-}
-
-// ==============================
-// SEND BUTTON
-// ==============================
-
-if (sendBtn) {
-  sendBtn.addEventListener("click", async () => {
-    const prompt = userInput.value.trim();
-    if (!prompt) return;
-
-    // Show user message
-    const userMessage = document.createElement("div");
-    userMessage.className = "user-message";
-    userMessage.innerText = prompt;
-    chatBox.appendChild(userMessage);
-
-    userInput.value = "";
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-    loadTalking();
-
-    // Get AI reply
-    const reply = await generateResponse(prompt);
-
-    loadIdle();
-
-    const aiMessage = document.createElement("div");
-    aiMessage.className = "ai-message";
-    aiMessage.innerText = reply;
-    chatBox.appendChild(aiMessage);
-
-    chatBox.scrollTop = chatBox.scrollHeight;
-  });
 }
