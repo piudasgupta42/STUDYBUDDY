@@ -1,22 +1,26 @@
-// ==============================
-// Sakha & Sakhi – Full Version
-// ==============================
+// ==========================================
+// Sakha & Sakhi – Ethical AI Study Companion
+// Full Working Frontend Script
+// ==========================================
 
+// Elements
 const avatarPlayer = document.getElementById("avatarAnimation");
 const avatarNameDisplay = document.getElementById("avatarName");
 const chatBox = document.getElementById("chatBox");
 const timerDisplay = document.getElementById("timer");
+const inputField = document.getElementById("messageInput");
 
 const selectedAvatar = localStorage.getItem("avatar") || "sakhi";
 
+// Display avatar name
 if (avatarNameDisplay) {
   avatarNameDisplay.innerText =
     selectedAvatar === "sakha" ? "Sakha" : "Sakhi";
 }
 
-// ==============================
-// ONLINE CARTOON AVATARS
-// ==============================
+// ==========================================
+// ONLINE LOTTIE AVATARS
+// ==========================================
 
 const animations = {
   sakha: {
@@ -30,148 +34,125 @@ const animations = {
 };
 
 function loadIdle() {
-  avatarPlayer.setAttribute("src", animations[selectedAvatar].idle);
+  if (avatarPlayer)
+    avatarPlayer.setAttribute("src", animations[selectedAvatar].idle);
 }
 
 function loadTalking() {
-  avatarPlayer.setAttribute("src", animations[selectedAvatar].talk);
+  if (avatarPlayer)
+    avatarPlayer.setAttribute("src", animations[selectedAvatar].talk);
 }
 
 if (avatarPlayer) loadIdle();
 
-// ==============================
-// GEMINI API
-// ==============================
+// ==========================================
+// CHAT FUNCTIONS
+// ==========================================
 
-// 🔴 PASTE YOUR NEW API KEY BELOW
-const API_KEY = "AIzaSyDlSchaIaPTtiWZxTbC46NWPllH0_svA0I";
+function addMessage(message, sender) {
+  const messageDiv = document.createElement("div");
+  messageDiv.className = sender === "user" ? "user-message" : "bot-message";
+  messageDiv.innerText = message;
+  chatBox.appendChild(messageDiv);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// ==========================================
+// GEMINI BACKEND CALL (RENDER)
+// ==========================================
 
 async function generateResponse(prompt) {
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+      "https://sakha-backend.onrender.com/api/chat",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: `
-You are ${selectedAvatar}, an ethical AI study companion.
-
-Rules:
-- No medical, legal, financial advice.
-- Supportive and growth-focused.
-- If student feels discouraged: empathy + perseverance example + small action step.
-- If crisis detected: encourage real-world help.
-
-User: ${prompt}
-`
-                }
-              ]
-            }
-          ]
+          message: prompt,
+          avatar: selectedAvatar
         })
       }
     );
 
     const data = await response.json();
-
-    return data.candidates?.[0]?.content?.parts?.[0]?.text ||
-           "Let’s keep learning together.";
+    return data.reply || "Let’s keep learning together.";
   } catch (error) {
+    console.error("Error:", error);
     return "Connection issue. Please try again.";
   }
 }
 
-// ==============================
-// MESSAGE + LIMIT SYSTEM
-// ==============================
-
-let messageCount = 0;
-let timeLeft = 600; // 10 minutes
+// ==========================================
+// SEND MESSAGE
+// ==========================================
 
 async function sendMessage() {
+  const message = inputField.value.trim();
+  if (!message) return;
 
-  if (messageCount >= 20) {
-    addMessage("Daily message limit reached.", "ai");
-    return;
-  }
-
-  const input = document.getElementById("userInput");
-  const text = input.value.trim();
-  if (!text) return;
-
-  input.value = "";
-  addMessage(text, "user");
-
-  if (checkSafety(text)) return;
-
-  messageCount++;
+  addMessage(message, "user");
+  inputField.value = "";
 
   loadTalking();
-  const reply = await generateResponse(text);
-  addMessage(reply, "ai");
-  speak(reply);
+
+  const aiReply = await generateResponse(message);
+
+  loadIdle();
+  addMessage(aiReply, "bot");
+  speak(aiReply);
 }
 
-function addMessage(text, type) {
-  const div = document.createElement("div");
-  div.className = "message " + type;
-  div.innerText = text;
-  chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-// ==============================
-// SAFETY SYSTEM
-// ==============================
-
-function checkSafety(text) {
-  const risky = ["suicide", "kill myself", "self harm", "die"];
-  for (let word of risky) {
-    if (text.toLowerCase().includes(word)) {
-      addMessage(
-        "I’m really sorry you're feeling this way. If you're in India, please call KIRAN 1800-599-0019. Are you safe right now?",
-        "ai"
-      );
-      return true;
-    }
-  }
-  return false;
-}
-
-// ==============================
-// VOICE
-// ==============================
+// ==========================================
+// TEXT TO SPEECH
+// ==========================================
 
 function speak(text) {
-  const speech = new SpeechSynthesisUtterance(text);
-  speech.lang = "en-US";
-  speech.onend = loadIdle;
-  window.speechSynthesis.speak(speech);
+  if ("speechSynthesis" in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    speechSynthesis.speak(utterance);
+  }
 }
 
-// ==============================
-// TIMER
-// ==============================
+// ==========================================
+// TIMER (10 Minutes)
+// ==========================================
+
+let timeLeft = 600; // 10 minutes
+
+function updateTimer() {
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+
+  if (timerDisplay) {
+    timerDisplay.innerText =
+      `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  }
+
+  if (timeLeft > 0) {
+    timeLeft--;
+  } else {
+    alert("Session time is over for today.");
+    inputField.disabled = true;
+  }
+}
 
 if (timerDisplay) {
-  setInterval(() => {
-    if (timeLeft <= 0) return;
-    timeLeft--;
-    let m = Math.floor(timeLeft / 60);
-    let s = timeLeft % 60;
-    timerDisplay.innerText = `${m}:${s < 10 ? "0" : ""}${s}`;
-  }, 1000);
+  setInterval(updateTimer, 1000);
 }
 
-// ==============================
-// DARK MODE
-// ==============================
+// ==========================================
+// ENTER KEY SUPPORT
+// ==========================================
 
-function toggleMode() {
-  document.body.classList.toggle("dark");
+if (inputField) {
+  inputField.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+      sendMessage();
+    }
+  });
 }
