@@ -1,56 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Sakha & Sakhi – Ethical AI Study Companion</title>
-
-  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sakha & Sakhi</title>
   <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body class="light">
+<div class="chat-container">
 
-<div class="container">
-  <h1>Sakha & Sakhi</h1>
-  <p>Your Ethical AI Study Companion</p>
-
-  <div class="avatars">
-
-    <div class="avatar-card" onclick="selectAvatar('sakha')">
-      <lottie-player
-        src="https://assets9.lottiefiles.com/packages/lf20_8wREpI.json"
-        background="transparent"
-        speed="1"
-        loop
-        autoplay>
-      </lottie-player>
-      <h3>Sakha</h3>
-    </div>
-
-    <div class="avatar-card" onclick="selectAvatar('sakhi')">
-      <lottie-player
-        src="https://assets3.lottiefiles.com/packages/lf20_khzniaya.json"
-        background="transparent"
-        speed="1"
-        loop
-        autoplay>
-      </lottie-player>
-      <h3>Sakhi</h3>
-    </div>
-
+  <div class="chat-header">
+    <img id="avatarImg" class="avatar">
+    <span id="avatarName"></span>
   </div>
 
-  <p class="disclaimer">
-    Fictional AI characters for educational purposes only.
-    Not medical, psychological, legal or financial advice.
-  </p>
+  <div id="chatBox" class="chat-box"></div>
+
+  <div class="chat-input">
+    <input id="userInput" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
 </div>
 
-<script>
-function selectAvatar(name){
-  localStorage.setItem("avatar", name);
-  window.location.href = "chat.html";
-}
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
